@@ -4,6 +4,7 @@ import highImg from "./assets/5-hov.svg";
 import lowImg from "./assets/1-hov.svg";
 import { randNumber, randText } from "@ngneat/falso";
 import _ from "lodash";
+import "./index.less";
 
 // PIXI.extensions.remove(PIXI.InteractionManager);
 
