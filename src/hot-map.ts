@@ -1,4 +1,4 @@
-import * as PIXI from "pixi.js";
+import { Sprite, Application, Texture } from "./pixi";
 import middleImg from "./assets/4-hov.svg";
 import highImg from "./assets/5-hov.svg";
 import lowImg from "./assets/1-hov.svg";
@@ -8,7 +8,7 @@ import "./index.less";
 
 // PIXI.extensions.remove(PIXI.InteractionManager);
 
-interface ISprite extends PIXI.Sprite {
+interface ISprite extends Sprite {
   _customData?: any;
 }
 
@@ -24,7 +24,7 @@ let itemSize = 50;
 let minSpace = 1;
 
 function main() {
-  console.log("is webgl", PIXI.utils.isWebGLSupported());
+  // console.log("is webgl", PIXI.utils.isWebGLSupported());
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight - 5;
 
@@ -36,7 +36,7 @@ function main() {
 
   const pop = document.querySelector(".pop") as HTMLDivElement;
 
-  const app = new PIXI.Application({
+  const app = new Application({
     width: windowWidth,
     height: windowHeight,
   });
@@ -52,9 +52,9 @@ function main() {
   const svgSize = { resourceOptions: { scale: 2 }, width: 100, height: 100 };
 
   const textures = {
-    low: PIXI.Texture.from(lowImg, svgSize),
-    middle: PIXI.Texture.from(middleImg, svgSize),
-    high: PIXI.Texture.from(highImg, svgSize),
+    low: Texture.from(lowImg, svgSize),
+    middle: Texture.from(middleImg, svgSize),
+    high: Texture.from(highImg, svgSize),
   };
 
   const dudes = [...new Array(MaxItem)].map((_, index) => {
@@ -66,7 +66,7 @@ function main() {
       | "low"
       | "middle"
       | "high";
-    const dude: ISprite = new PIXI.Sprite(textures[status]);
+    const dude: ISprite = new Sprite(textures[status]);
 
     // dude.tint = Math.random() * 0xffffff;
 
