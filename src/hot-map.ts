@@ -1,4 +1,4 @@
-import { Sprite, Application, Texture } from "./pixi";
+import * as PIXI from "./pixi";
 import middleImg from "./assets/4-hov.svg";
 import highImg from "./assets/5-hov.svg";
 import lowImg from "./assets/1-hov.svg";
@@ -6,9 +6,7 @@ import { randNumber, randText } from "@ngneat/falso";
 import _ from "lodash";
 import "./index.less";
 
-// PIXI.extensions.remove(PIXI.InteractionManager);
-
-interface ISprite extends Sprite {
+interface ISprite extends PIXI.Sprite {
   _customData?: any;
 }
 
@@ -36,7 +34,7 @@ function main() {
 
   const pop = document.querySelector(".pop") as HTMLDivElement;
 
-  const app = new Application({
+  const app = new PIXI.Application({
     width: windowWidth,
     height: windowHeight,
   });
@@ -52,9 +50,9 @@ function main() {
   const svgSize = { resourceOptions: { scale: 2 }, width: 100, height: 100 };
 
   const textures = {
-    low: Texture.from(lowImg, svgSize),
-    middle: Texture.from(middleImg, svgSize),
-    high: Texture.from(highImg, svgSize),
+    low: PIXI.Texture.from(lowImg, svgSize),
+    middle: PIXI.Texture.from(middleImg, svgSize),
+    high: PIXI.Texture.from(highImg, svgSize),
   };
 
   const dudes = [...new Array(MaxItem)].map((_, index) => {
@@ -66,7 +64,7 @@ function main() {
       | "low"
       | "middle"
       | "high";
-    const dude: ISprite = new Sprite(textures[status]);
+    const dude: ISprite = new PIXI.Sprite(textures[status]);
 
     // dude.tint = Math.random() * 0xffffff;
 

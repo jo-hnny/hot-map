@@ -12,13 +12,13 @@ export * from "@pixi/app";
 export * from "@pixi/interaction";
 
 // Renderer plugins
-import { Renderer } from "@pixi/core";
-import { BatchRenderer } from "@pixi/core";
-Renderer.registerPlugin("batch", BatchRenderer);
-import { InteractionManager } from "@pixi/interaction";
-Renderer.registerPlugin("interaction", InteractionManager);
+import { extensions } from "@pixi/extensions";
 
-// Application plugins
-import { Application } from "@pixi/app";
+import { BatchRenderer } from "@pixi/core";
+extensions.add(BatchRenderer);
+
+import { InteractionManager } from "@pixi/interaction";
+extensions.add(InteractionManager);
+
 import { TickerPlugin } from "@pixi/ticker";
-Application.registerPlugin(TickerPlugin);
+extensions.add(TickerPlugin);
