@@ -8,15 +8,28 @@ html,
 body {
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  background-color: #000;
 
   .pop {
     position: absolute;
     display: none;
-    color: black;
     padding: 10px;
-
     width: 200px;
     height: 80px;
     background-color: white;
+    cursor: pointer;
+
+    &.low {
+      color: green;
+    }
+
+    &.middle {
+      color: black;
+    }
+
+    &.high {
+      color: red;
+    }
   }
 }
