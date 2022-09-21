@@ -3,7 +3,7 @@ import middleImg from "./assets/4-hov.svg";
 import highImg from "./assets/5-hov.svg";
 import lowImg from "./assets/1-hov.svg";
 import { randNumber, randText } from "@ngneat/falso";
-import _, { size } from "lodash";
+import _ from "lodash";
 import "./index.less";
 
 interface ISprite extends PIXI.Sprite {
@@ -17,16 +17,15 @@ function getParamByUrl(key: string) {
 
 const MaxItem = +(getParamByUrl("max") ?? 5) * 10000;
 
-let windowWidth = window.innerWidth;
-let windowHeight = window.innerHeight;
+let boxWidth = window.innerWidth;
 
 let itemSize = 50;
 
 const space = 20;
 
-// 竖向拖动
+// 拖动
 let startY = 0;
-let offsetY = 0;
+let startX = 0;
 let dragAble = false;
 
 function main() {
@@ -38,6 +37,9 @@ function main() {
     resizeTo: window,
   });
 
+  app.stage.pivot.set(window.innerWidth / 2, window.innerHeight / 2);
+  app.stage.position.set(window.innerWidth / 2, window.innerHeight / 2);
+
   app.stage.interactive = true;
 
   app.stage.hitArea = app.renderer.screen;
@@ -46,13 +48,14 @@ function main() {
     if (dragAble) return;
 
     if (e?.target?.isSprite) {
+      const { x, y } = e?.data?.global;
       const { clusterId, status } = e.target._customData;
 
       pop.innerHTML = `clusterId: ${clusterId} \n status: ${status}`;
       pop.className = `pop ${status}`;
 
-      pop.style.setProperty("top", `${e.target.y}px`);
-      pop.style.setProperty("left", `${e.target.x}px`);
+      pop.style.setProperty("top", `${y}px`);
+      pop.style.setProperty("left", `${x}px`);
 
       pop.style.setProperty("display", "block");
     } else {
@@ -71,7 +74,10 @@ function main() {
     high: PIXI.Texture.from(highImg, svgSize),
   };
 
-  const dudes = [...new Array(MaxItem)].map((_, index) => {
+  const rowNum = Math.floor(boxWidth / (itemSize + space));
+  const rowSpace = (boxWidth - rowNum * itemSize) / (rowNum - 1);
+
+  [...new Array(MaxItem)].map((_, index) => {
     const status = ["low", "middle", "high"][randNumber({ min: 0, max: 2 })] as
       | "low"
       | "middle"
@@ -79,64 +85,40 @@ function main() {
 
     const dude: ISprite = new PIXI.Sprite(textures[status]);
 
-    dude.visible = false;
-
-    dude.interactive = false;
+    dude.interactive = true;
+    dude.buttonMode = true;
 
     dude._customData = {
       clusterId: randText(),
       status,
     };
 
+    const y = Math.floor(index / rowNum) * (itemSize + space);
+
+    const x = (index % rowNum) * (itemSize + rowSpace);
+
+    dude.width = itemSize;
+    dude.height = itemSize;
+
+    dude.x = x;
+
+    dude.y = y;
+
     app.stage.addChild(dude);
 
     return dude;
   });
 
-  function render() {
-    const rowNum = Math.floor(windowWidth / (itemSize + space));
-    const rowSpace = (windowWidth - rowNum * itemSize) / (rowNum - 1);
-
-    dudes.forEach((dude, index) => {
-      const y = Math.floor(index / rowNum) * (itemSize + space) + offsetY;
-
-      if (y > windowHeight || y < 0 - itemSize) {
-        dude.visible = false;
-
-        dude.interactive = false;
-
-        return;
-      }
-
-      const x = (index % rowNum) * (itemSize + rowSpace);
-
-      dude.width = itemSize;
-      dude.height = itemSize;
-
-      dude.x = x;
-
-      dude.y = y;
-
-      dude.interactive = true;
-
-      dude.visible = true;
-    });
-  }
-
   function handleMouseWhell(e: WheelEvent) {
+    let zoom = 1;
+
     if (e.deltaY < 0) {
-      itemSize *= 0.95;
+      zoom = 1.1;
     } else if (e.deltaY > 0) {
-      itemSize *= 1.05;
+      zoom = 0.9;
     }
 
-    if (itemSize < 1) {
-      itemSize = 1;
-    } else if (itemSize > 100) {
-      itemSize = 100;
-    }
-
-    render();
+    app.stage.scale.set(app.stage.scale.x * zoom);
   }
 
   const throttleHandleMouseWhell = _.throttle(handleMouseWhell, 1000 / 30);
@@ -145,16 +127,11 @@ function main() {
     throttleHandleMouseWhell(e);
   });
 
-  window.addEventListener("resize", () => {
-    windowWidth = window.innerWidth;
-    windowHeight = window.innerHeight;
-
-    render();
-  });
-
   // 拖动
   app.view.addEventListener("mousedown", (e) => {
     startY = e.clientY;
+    startX = e.clientX;
+
     dragAble = true;
   });
 
@@ -162,29 +139,23 @@ function main() {
     if (!dragAble) return;
 
     const endY = e.clientY;
-    offsetY += endY - startY;
+    const offsetY = endY - startY;
 
-    render();
+    const endX = e.clientX;
+    const offsetX = endX - startX;
+
+    app.stage.x += offsetX;
+    app.stage.y += offsetY;
 
     startY = endY;
+    startX = endX;
   });
 
   app.view.addEventListener("mouseup", () => {
     startY = 0;
+    startX = 0;
     dragAble = false;
   });
-
-  render();
-
-  function animate() {
-    render();
-
-    offsetY -= 10;
-
-    requestAnimationFrame(animate);
-  }
-
-  // animate();
 }
 
 main();
