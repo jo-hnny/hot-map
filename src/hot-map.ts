@@ -1,4 +1,4 @@
-import * as PIXI from "./pixi";
+import * as PIXI from "pixi.js";
 import middleImg from "./assets/4-hov.svg";
 import highImg from "./assets/5-hov.svg";
 import lowImg from "./assets/1-hov.svg";
@@ -37,15 +37,21 @@ function main() {
     resizeTo: window,
   });
 
-  app.stage.pivot.set(window.innerWidth / 2, window.innerHeight / 2);
-  app.stage.position.set(window.innerWidth / 2, window.innerHeight / 2);
+  const pc = new PIXI.ParticleContainer(MaxItem);
 
-  app.stage.interactive = true;
+  app.stage.addChild(pc);
 
-  app.stage.hitArea = app.renderer.screen;
+  pc.pivot.set(window.innerWidth / 2, window.innerHeight / 2);
+  pc.position.set(window.innerWidth / 2, window.innerHeight / 2);
 
-  app.stage.addListener("mousemove", (e) => {
+  pc.interactive = true;
+
+  pc.hitArea = app.renderer.screen;
+
+  pc.addListener("mousemove", (e) => {
     if (dragAble) return;
+
+    console.log("pc", e);
 
     if (e?.target?.isSprite) {
       const { x, y } = e?.data?.global;
@@ -68,11 +74,7 @@ function main() {
 
   const svgSize = { resourceOptions: { scale: 2 } };
 
-  const textures = {
-    low: PIXI.Texture.from(lowImg, svgSize),
-    middle: PIXI.Texture.from(middleImg, svgSize),
-    high: PIXI.Texture.from(highImg, svgSize),
-  };
+  const texture = PIXI.Texture.from(middleImg, svgSize);
 
   const rowNum = Math.floor(boxWidth / (itemSize + space));
   const rowSpace = (boxWidth - rowNum * itemSize) / (rowNum - 1);
@@ -83,7 +85,10 @@ function main() {
       | "middle"
       | "high";
 
-    const dude: ISprite = new PIXI.Sprite(textures[status]);
+    const dude: ISprite = new PIXI.Sprite(texture);
+
+    if (status === "high") dude.tint = 0xf96666;
+    if (status === "low") dude.tint = 0x829460;
 
     dude.interactive = true;
     dude.buttonMode = true;
@@ -104,7 +109,7 @@ function main() {
 
     dude.y = y;
 
-    app.stage.addChild(dude);
+    pc.addChild(dude);
 
     return dude;
   });
@@ -118,7 +123,7 @@ function main() {
       zoom = 0.9;
     }
 
-    app.stage.scale.set(app.stage.scale.x * zoom);
+    pc.scale.set(pc.scale.x * zoom);
   }
 
   const throttleHandleMouseWhell = _.throttle(handleMouseWhell, 1000 / 30);
@@ -144,8 +149,8 @@ function main() {
     const endX = e.clientX;
     const offsetX = endX - startX;
 
-    app.stage.x += offsetX;
-    app.stage.y += offsetY;
+    pc.x += offsetX;
+    pc.y += offsetY;
 
     startY = endY;
     startX = endX;
