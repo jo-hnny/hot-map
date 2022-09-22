@@ -3,7 +3,7 @@ import middleImg from "./assets/4-hov.svg";
 import highImg from "./assets/5-hov.svg";
 import lowImg from "./assets/1-hov.svg";
 import { randNumber, randText } from "@ngneat/falso";
-import _, { size } from "lodash";
+import _ from "lodash";
 import "./index.less";
 
 interface ISprite extends PIXI.Sprite {
@@ -123,7 +123,7 @@ function main() {
     });
   }
 
-  function handleMouseWhell(e: WheelEvent) {
+  function _handleMouseWheel(e: WheelEvent) {
     if (e.deltaY < 0) {
       itemSize *= 0.95;
     } else if (e.deltaY > 0) {
@@ -139,11 +139,9 @@ function main() {
     render();
   }
 
-  const throttleHandleMouseWhell = _.throttle(handleMouseWhell, 1000 / 30);
+  const handleMouseWheel = _.throttle(_handleMouseWheel, 1000 / 30);
 
-  app.view.addEventListener("wheel", (e: WheelEvent) => {
-    throttleHandleMouseWhell(e);
-  });
+  app.view.addEventListener("wheel", handleMouseWheel);
 
   window.addEventListener("resize", () => {
     windowWidth = window.innerWidth;
@@ -158,7 +156,7 @@ function main() {
     dragAble = true;
   });
 
-  app.view.addEventListener("mousemove", (e) => {
+  function _handleDrag(e: MouseEvent) {
     if (!dragAble) return;
 
     const endY = e.clientY;
@@ -167,7 +165,11 @@ function main() {
     render();
 
     startY = endY;
-  });
+  }
+
+  const handleDrag = _.throttle(_handleDrag, 1000 / 30);
+
+  app.view.addEventListener("mousemove", handleDrag);
 
   app.view.addEventListener("mouseup", () => {
     startY = 0;
